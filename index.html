@@ -45,7 +45,7 @@
                     </div>
                     <div>
                         <h1 class="text-xl font-black tracking-tight leading-none uppercase italic text-white">Gestão Cloud</h1>
-                        <p id="auth-status" class="text-[9px] text-ipb-ouro mt-1 font-bold tracking-[0.3em] uppercase italic">Aguardando Chaves...</p>
+                        <p id="auth-status" class="text-[9px] text-ipb-ouro mt-1 font-bold tracking-[0.3em] uppercase italic">Conectando...</p>
                     </div>
                 </div>
                 <div class="hidden md:flex space-x-8 items-center">
@@ -59,10 +59,16 @@
     </nav>
 
     <main class="max-w-5xl mx-auto p-4 mt-8 pb-20">
-        <!-- Banner de Alerta de Configuração -->
+        <!-- Banner de Alerta de Erro -->
         <div id="config-alert" class="hidden mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
-            <p class="font-bold">Atenção, Rev. Paulo:</p>
-            <p class="text-sm">As chaves do Firebase ainda não foram configuradas no código. O sistema não conseguirá salvar dados até que o senhor substitua o texto <code class="bg-red-200 px-1">"COLE_AQUI"</code> pelas suas credenciais reais.</p>
+            <p class="font-bold underline uppercase text-xs mb-1 italic">Ação Necessária no Console Firebase:</p>
+            <p id="error-msg" class="text-xs leading-relaxed">
+                O erro <strong>auth/configuration-not-found</strong> indica que o login Anônimo está desativado.<br>
+                1. Vá ao Console do Firebase > <strong>Authentication</strong>.<br>
+                2. Clique em <strong>Sign-in method</strong>.<br>
+                3. Clique em <strong>Adicionar novo provedor</strong> e escolha <strong>Anônimo</strong>.<br>
+                4. Ative a chave e clique em <strong>Salvar</strong>.
+            </p>
         </div>
 
         <!-- DASHBOARD -->
@@ -84,7 +90,7 @@
             <div class="bg-white rounded-lg shadow-md p-6 border border-slate-200">
                 <h2 class="text-xs font-black text-ipb-verde uppercase tracking-widest border-b pb-4 mb-4">Últimas Atividades</h2>
                 <div id="activity-list" class="space-y-3">
-                    <p class="text-xs text-slate-400 italic">Nenhuma atividade registrada.</p>
+                    <p class="text-[10px] text-slate-300 italic">Nenhuma atividade registrada.</p>
                 </div>
             </div>
         </section>
@@ -148,25 +154,26 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ---------------------------------------------------------
-        // IMPORTANTE: SUBSTITUA OS VALORES ABAIXO PELOS DO SEU FIREBASE
-        // ---------------------------------------------------------
+        // CONFIGURAÇÕES DO REV. PAULO
         const firebaseConfig = {
-          apiKey: "AIzaSyAkwAqjPI2sBHglpURT3eL3mn3GumrzFH0",
-          authDomain: "visitaspastorais.firebaseapp.com",
-          projectId: "visitaspastorais",
-          storageBucket: "visitaspastorais.firebasestorage.app",
-          messagingSenderId: "405839357174",
-          appId: "1:405839357174:web:f34c27443e1ce3b13eb8d7"
+            apiKey: "AIzaSyAkwAqjPI2sBHglpURT3eL3mn3GumrzFH0",
+            authDomain: "visitaspastorais.firebaseapp.com",
+            projectId: "visitaspastorais",
+            storageBucket: "visitaspastorais.firebasestorage.app",
+            messagingSenderId: "405839357174",
+            appId: "1:405839357174:web:f34c27443e1ce3b13eb8d7"
         };
 
-        // Verificação básica se o usuário esqueceu de trocar as chaves
-        if (firebaseConfig.apiKey === "COLE_AQUI") {
-            document.getElementById('config-alert').classList.remove('hidden');
-            document.getElementById('auth-status').innerText = "ERRO: SEM CHAVES";
-        } else {
-            initApp();
-        }
+        window.showTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        window.toggleModal = (id) => {
+            document.getElementById(id).classList.toggle('hidden');
+        };
+
+        initApp();
 
         async function initApp() {
             try {
@@ -179,16 +186,6 @@
                 let membros = [];
                 let visitas = [];
 
-                // Funções Globais
-                window.showTab = (id) => {
-                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                    document.getElementById(id).classList.add('active');
-                };
-
-                window.toggleModal = (id) => {
-                    document.getElementById(id).classList.toggle('hidden');
-                };
-
                 window.deleteMembro = async (id) => {
                     if(confirm("Remover membro?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'membros', id));
                 };
@@ -197,16 +194,18 @@
                     if(confirm("Excluir visita?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'visitas', id));
                 };
 
-                // Auth
+                // Escutador de Autenticação com tratamento de erro melhorado
                 onAuthStateChanged(auth, (u) => {
                     user = u;
                     if (user) {
                         document.getElementById('auth-status').innerText = "ONLINE";
+                        document.getElementById('config-alert').classList.add('hidden');
                         setupListeners(db, appId, user);
                     } else {
                         signInAnonymously(auth).catch(err => {
-                            console.error("Auth Error:", err);
+                            console.error("Auth Error Code:", err.code);
                             document.getElementById('auth-status').innerText = "ERRO AUTH";
+                            document.getElementById('config-alert').classList.remove('hidden');
                         });
                     }
                 });
@@ -215,12 +214,12 @@
                     onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), (snap) => {
                         membros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                         updateUI(membros, visitas);
-                    });
+                    }, err => console.error("Firestore Membros Error:", err));
 
                     onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), (snap) => {
                         visitas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                         updateUI(membros, visitas);
-                    });
+                    }, err => console.error("Firestore Visitas Error:", err));
                 }
 
                 document.getElementById('form-membro').onsubmit = async (e) => {
@@ -234,7 +233,9 @@
                         });
                         e.target.reset(); toggleModal('modal-membro');
                         showMessage("Membro salvo!");
-                    } catch (e) { alert("Erro ao salvar: Verifique se ativou o Firestore Database no Console."); }
+                    } catch (e) { 
+                        alert("Erro ao salvar! Verifique se criou o banco Firestore no console."); 
+                    }
                 };
 
                 document.getElementById('form-visita').onsubmit = async (e) => {
@@ -255,7 +256,7 @@
 
             } catch (err) {
                 console.error("Firebase Init Error:", err);
-                document.getElementById('auth-status').innerText = "FALHA DE CONEXÃO";
+                document.getElementById('auth-status').innerText = "FALHA GERAL";
             }
         }
 
@@ -278,10 +279,10 @@
             lm.innerHTML = membros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `
                 <li class="p-4 flex justify-between items-center bg-white">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-ipb-verde text-white rounded-full flex items-center justify-center font-bold">${m.nome.charAt(0)}</div>
+                        <div class="w-8 h-8 bg-ipb-verde text-white rounded-full flex items-center justify-center font-bold text-xs">${m.nome.charAt(0)}</div>
                         <div><p class="font-bold text-sm uppercase text-ipb-verde">${m.nome}</p></div>
                     </div>
-                    <button onclick="deleteMembro('${m.id}')" class="text-slate-300 hover:text-red-500 transition-colors">×</button>
+                    <button onclick="deleteMembro('${m.id}')" class="text-slate-300 hover:text-red-500 transition-colors px-2 text-xl">&times;</button>
                 </li>
             `).join('');
 
@@ -291,12 +292,12 @@
                 return `
                     <div class="bg-white p-6 rounded-lg border-l-4 border-ipb-verde shadow-sm relative group">
                         <div class="flex justify-between mb-2">
-                            <span class="font-black text-ipb-verde text-xs uppercase">${m.nome}</span>
+                            <span class="font-black text-ipb-verde text-xs uppercase tracking-tighter">${m.nome}</span>
                             <span class="text-[10px] font-bold text-slate-400">${new Date(v.data).toLocaleDateString()}</span>
                         </div>
                         <p class="text-sm text-slate-600 mb-2 italic">"${v.obs}"</p>
                         ${v.oracao ? `<div class="text-[10px] p-2 bg-ipb-ouro/5 text-ipb-ouro border-l border-ipb-ouro"><strong>Oração:</strong> ${v.oracao}</div>` : ''}
-                        <button onclick="deleteVisita('${v.id}')" class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[9px] text-red-300 uppercase font-bold">Excluir Registro</button>
+                        <button onclick="deleteVisita('${v.id}')" class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[9px] text-red-300 uppercase font-bold">Excluir</button>
                     </div>
                 `;
             }).join('');
@@ -306,10 +307,10 @@
             al.innerHTML = latest.length ? latest.map(v => {
                 const m = membros.find(x => x.id === v.membroId) || {nome: '?'};
                 return `<div class="text-[10px] flex justify-between border-b border-slate-50 pb-1">
-                    <span class="font-bold">${m.nome}</span>
-                    <span class="text-slate-400">${new Date(v.data).toLocaleDateString()}</span>
+                    <span class="font-bold uppercase text-ipb-verde">${m.nome}</span>
+                    <span class="text-slate-400 font-bold">${new Date(v.data).toLocaleDateString()}</span>
                 </div>`;
-            }).join('') : '<p class="text-[10px] text-slate-300">Nenhuma visita recente.</p>';
+            }).join('') : '<p class="text-[10px] text-slate-300 italic">Aguardando registros...</p>';
         }
     </script>
 </body>
