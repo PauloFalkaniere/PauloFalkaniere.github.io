@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Pastoral Cloud - Rev. Paulo Fakaniere</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ipb: {
+                            verde: '#005035',
+                            verdeClaro: '#006644',
+                            verdeEscuro: '#003d28',
+                            cinza: '#2D2926',
+                            cinzaMedio: '#53565A',
+                            ouro: '#86734D',
+                            fundo: '#F4F7F5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #005035; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-ipb-fundo min-h-screen text-slate-800">
+
+    <!-- CABEÇALHO -->
+    <nav class="bg-ipb-verde text-white shadow-2xl border-b-4 border-ipb-cinza sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-5">
+                    <div class="bg-white p-1.5 rounded shadow-lg flex items-center justify-center w-14 h-14 border border-ipb-cinza/10">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A8Y98XvR9kO40pD0X9F4r5kX3yH2v6E6-A&s" alt="Logo IPB" class="max-w-full max-h-full object-contain">
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black tracking-tight leading-none uppercase italic text-white">Gestão Cloud</h1>
+                        <p id="auth-status" class="text-[9px] text-ipb-ouro mt-1 font-bold tracking-[0.3em] uppercase italic">Conectando ao Altar...</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button onclick="showTab('dashboard')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors">Painel</button>
+                    <button onclick="showTab('membros')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors">Membros</button>
+                    <button onclick="showTab('visitas')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors text-ipb-ouro">Registrar Visita</button>
+                    <button onclick="showTab('historico')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors">Histórico</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-4 mt-8 pb-20">
+        
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-ipb-verde">
+                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Membros no Rol</h3>
+                    <p id="stat-membros" class="text-4xl font-black text-ipb-verde">...</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-ipb-cinza">
+                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Total de Visitas</h3>
+                    <p id="stat-visitas-total" class="text-4xl font-black text-ipb-cinza">...</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-ipb-ouro">
+                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Pedidos de Oração</h3>
+                    <p id="stat-oracoes" class="text-4xl font-black text-ipb-ouro">...</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6 border border-slate-200">
+                <h2 class="text-xs font-black text-ipb-verde uppercase tracking-widest border-b pb-4 mb-4">Últimas Atividades</h2>
+                <div id="activity-list" class="space-y-3">
+                    <p class="text-sm text-slate-400 italic text-center py-6">Sincronizando registros recentes...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEMBROS -->
+        <section id="membros" class="tab-content">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black text-ipb-verde uppercase">Rol de Membros</h2>
+                <button onclick="toggleModal('modal-membro')" class="bg-ipb-cinza text-white px-6 py-3 rounded font-black text-[10px] uppercase shadow-lg hover:bg-ipb-cinzaMedio transition-all">Novo Membro</button>
+            </div>
+            <div class="bg-white shadow rounded-lg overflow-hidden border border-slate-200">
+                <ul id="lista-membros" class="divide-y divide-slate-100"></ul>
+            </div>
+        </section>
+
+        <!-- VISITAS -->
+        <section id="visitas" class="tab-content">
+            <div class="max-w-2xl mx-auto bg-white p-10 rounded-lg shadow-2xl border-t-8 border-ipb-verde">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-ipb-verde rounded flex items-center justify-center text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-black text-ipb-verde uppercase">Relatório Pastoral</h2>
+                </div>
+                <form id="form-visita" class="space-y-6">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Membro Visitado</label>
+                        <select id="visita-membro" required class="w-full p-3 border rounded-md bg-slate-50 font-bold focus:ring-2 focus:ring-ipb-verde outline-none"></select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Data da Visita</label>
+                            <input type="date" id="visita-data" required class="w-full p-3 border rounded-md bg-slate-50 focus:ring-2 focus:ring-ipb-verde outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Tipo de Atendimento</label>
+                            <select id="visita-tipo" class="w-full p-3 border rounded-md bg-slate-50 font-bold focus:ring-2 focus:ring-ipb-verde outline-none">
+                                <option>Residencial</option>
+                                <option>Hospitalar</option>
+                                <option>Gabinete</option>
+                                <option>Remoto (Telefone/Vídeo)</option>
+                                <option>Social (Café/Refeição)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Observações e Aconselhamento</label>
+                        <textarea id="visita-obs" rows="4" class="w-full p-3 border rounded-md text-sm focus:ring-2 focus:ring-ipb-verde outline-none" placeholder="Resumo do que foi tratado..."></textarea>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-1">Motivos de Oração / Intercessão</label>
+                        <textarea id="visita-oracao" rows="2" class="w-full p-3 border rounded-md text-sm italic focus:ring-2 focus:ring-ipb-verde outline-none" placeholder="Pelo que devemos orar?"></textarea>
+                    </div>
+                    <button type="submit" id="btn-save-visita" class="w-full bg-ipb-verde text-white py-4 rounded font-black uppercase text-xs shadow-lg hover:bg-ipb-verdeClaro transition-all">Salvar Registro no Banco de Dados</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- HISTÓRICO -->
+        <section id="historico" class="tab-content">
+            <h2 class="text-2xl font-black text-ipb-verde uppercase mb-8">Memória de Visitação</h2>
+            <div id="timeline-visitas" class="space-y-6"></div>
+        </section>
+    </main>
+
+    <!-- MODAL MEMBRO -->
+    <div id="modal-membro" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-lg max-w-md w-full p-8 border-t-8 border-ipb-cinza shadow-2xl">
+            <h2 class="text-xl font-black text-ipb-verde uppercase mb-6 text-center">Cadastro de Ovelha</h2>
+            <form id="form-membro" class="space-y-4">
+                <input type="text" id="membro-nome" placeholder="Nome Completo" required class="w-full p-3 border rounded bg-slate-50 focus:ring-2 focus:ring-ipb-verde outline-none">
+                <input type="tel" id="membro-tel" placeholder="WhatsApp / Telefone" class="w-full p-3 border rounded bg-slate-50 focus:ring-2 focus:ring-ipb-verde outline-none">
+                <input type="text" id="membro-end" placeholder="Endereço Residencial" class="w-full p-3 border rounded bg-slate-50 focus:ring-2 focus:ring-ipb-verde outline-none">
+                <button type="submit" class="w-full bg-ipb-verde text-white py-3 rounded font-black uppercase text-xs shadow-md">Salvar Membro</button>
+                <button type="button" onclick="toggleModal('modal-membro')" class="w-full text-slate-400 text-[10px] font-black uppercase mt-2">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="msg-box" class="fixed bottom-10 right-10 hidden bg-ipb-cinza border-l-8 border-ipb-ouro text-white px-8 py-4 rounded shadow-2xl z-50 font-black uppercase text-[10px] tracking-widest"></div>
+
+    <!-- FIREBASE SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuração
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pastoral-app-001';
+
+        let user = null;
+        let membros = [];
+        let visitas = [];
+
+        // Início da Autenticação
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth Fail:", error);
+                document.getElementById('auth-status').innerText = "Erro de Conexão";
+            }
+        };
+
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) {
+                document.getElementById('auth-status').innerText = "Nuvem Sincronizada";
+                setupListeners();
+            }
+        });
+
+        initAuth();
+
+        function setupListeners() {
+            if (!user) return;
+
+            // Escutador de Membros (Público ao AppId)
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), (snap) => {
+                membros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateUI();
+            });
+
+            // Escutador de Visitas (Privado ao Usuário)
+            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), (snap) => {
+                visitas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateUI();
+            });
+        }
+
+        // Ações de Banco de Dados
+        window.saveMembro = async (d) => {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), { ...d, createdAt: new Date().toISOString() });
+            showMessage("Membro registrado com sucesso.");
+        };
+
+        window.saveVisita = async (d) => {
+            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), { ...d, timestamp: new Date().toISOString() });
+            showMessage("Relatório de visita salvo.");
+        };
+
+        window.deleteMembro = async (id) => {
+            if(!confirm("Remover este membro permanentemente do rol?")) return;
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'membros', id));
+        };
+
+        window.deleteVisita = async (id) => {
+            if(!confirm("Excluir este registro de visita?")) return;
+            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'visitas', id));
+        };
+
+        // UI Handlers
+        window.showTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        window.toggleModal = (id) => {
+            document.getElementById(id).classList.toggle('hidden');
+        };
+
+        function showMessage(m) {
+            const b = document.getElementById('msg-box');
+            b.innerText = m; b.classList.remove('hidden');
+            setTimeout(() => b.classList.add('hidden'), 3000);
+        }
+
+        // Forms
+        document.getElementById('form-membro').onsubmit = async (e) => {
+            e.preventDefault();
+            await window.saveMembro({
+                nome: document.getElementById('membro-nome').value,
+                tel: document.getElementById('membro-tel').value,
+                end: document.getElementById('membro-end').value
+            });
+            e.target.reset(); toggleModal('modal-membro');
+        };
+
+        document.getElementById('form-visita').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-visita');
+            btn.disabled = true; btn.innerText = "Gravando...";
+            
+            await window.saveVisita({
+                membroId: document.getElementById('visita-membro').value,
+                data: document.getElementById('visita-data').value,
+                tipo: document.getElementById('visita-tipo').value,
+                obs: document.getElementById('visita-obs').value,
+                oracao: document.getElementById('visita-oracao').value
+            });
+            
+            btn.disabled = false; btn.innerText = "Salvar Registro no Banco de Dados";
+            e.target.reset(); showTab('historico');
+        };
+
+        function updateUI() {
+            // Stats
+            document.getElementById('stat-membros').innerText = membros.length;
+            document.getElementById('stat-visitas-total').innerText = visitas.length;
+            document.getElementById('stat-oracoes').innerText = visitas.filter(v => v.oracao).length;
+
+            // Select
+            const sel = document.getElementById('visita-membro');
+            sel.innerHTML = '<option value="">Escolha um membro...</option>' + 
+                membros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+
+            // Lista Membros
+            const lm = document.getElementById('lista-membros');
+            lm.innerHTML = membros.length ? membros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `
+                <li class="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-ipb-verde text-white rounded flex items-center justify-center font-black">${m.nome.charAt(0)}</div>
+                        <div>
+                            <p class="font-black text-ipb-verde uppercase text-sm">${m.nome}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${m.tel || 'S/ Telefone'}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteMembro('${m.id}')" class="text-slate-200 hover:text-red-600 px-2 transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2"></path></svg>
+                    </button>
+                </li>
+            `).join('') : '<li class="p-8 text-center text-slate-400 text-sm italic">Nenhum membro cadastrado no rol.</li>';
+
+            // Histórico Timeline
+            const tl = document.getElementById('timeline-visitas');
+            tl.innerHTML = visitas.length ? visitas.sort((a,b) => new Date(b.data) - new Date(a.data)).map(v => {
+                const m = membros.find(x => x.id === v.membroId) || {nome: 'Ovelha não Identificada'};
+                return `
+                    <div class="bg-white p-6 rounded-lg border-l-4 border-ipb-verde shadow-sm hover:shadow-md transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-black text-ipb-verde uppercase text-lg leading-tight">${m.nome}</h4>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="text-[9px] font-black bg-ipb-cinza/10 px-2 py-0.5 rounded text-ipb-cinza uppercase">${v.tipo}</span>
+                                    <span class="text-[10px] font-bold text-slate-400">${new Date(v.data).toLocaleDateString('pt-PT')}</span>
+                                </div>
+                            </div>
+                            <button onclick="deleteVisita('${v.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all font-black text-xl">×</button>
+                        </div>
+                        <p class="text-sm text-slate-600 italic mb-4 border-l-2 border-slate-100 pl-4">${v.obs || 'Nenhuma nota registrada.'}</p>
+                        ${v.oracao ? `<div class="bg-ipb-ouro/5 p-3 rounded text-xs border-l-2 border-ipb-ouro text-ipb-ouro"><strong>Motivo de Oração:</strong> ${v.oracao}</div>` : ''}
+                    </div>
+                `;
+            }).join('') : '<div class="text-center py-20 bg-white rounded-lg border-2 border-dashed border-slate-100 text-slate-400 italic">Sem visitas registradas no histórico.</div>';
+
+            // Atividade Recente (Dashboard)
+            const al = document.getElementById('activity-list');
+            const latest = [...visitas].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 4);
+            al.innerHTML = latest.length ? latest.map(v => {
+                const m = membros.find(x => x.id === v.membroId) || {nome: '?'};
+                return `
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded border border-slate-100">
+                        <span class="text-[10px] font-black uppercase text-ipb-cinza">${m.nome}</span>
+                        <div class="text-right">
+                             <span class="text-[9px] font-bold text-ipb-ouro block uppercase">${v.tipo}</span>
+                             <span class="text-[8px] text-slate-400 block">${new Date(v.data).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<p class="text-sm text-slate-400 italic text-center py-6">Nenhuma atividade recente.</p>';
+        }
+    </script>
+</body>
+</html>
