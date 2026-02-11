@@ -2,8 +2,8 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registros Pastorais - Rev. Paulo Falkaniere</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pastoral Mobile - Rev. Paulo Falkaniere</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,261 +26,260 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #005035; border-radius: 10px; }
-        .category-card { transition: all 0.2s; border: 2px solid transparent; cursor: pointer; }
+        
+        /* Mobile Menu Styling */
+        @media (max-width: 768px) {
+            .mobile-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #005035;
+                display: flex;
+                justify-content: space-around;
+                padding: 10px 0;
+                z-index: 50;
+                border-top: 3px solid #86734D;
+            }
+            .nav-link.active {
+                color: #86734D !important;
+                border-bottom: none !important;
+            }
+            main { padding-bottom: 100px; }
+        }
+
+        .category-card { transition: all 0.2s; border: 2px solid transparent; }
         .category-card.active { border-color: #005035; background-color: #005035; color: white; }
         
-        .nav-link.active {
-            color: #FFFFFF !important;
-            border-bottom: 3px solid #86734D;
-        }
+        input, select, textarea { font-size: 16px !important; } /* Previne zoom automático no iOS */
     </style>
 </head>
 <body class="bg-ipb-fundo min-h-screen text-slate-800">
 
-    <nav class="bg-ipb-verde text-white shadow-2xl border-b-4 border-ipb-cinza sticky top-0 z-40">
+    <!-- Header Desktop -->
+    <nav class="bg-ipb-verde text-white shadow-xl border-b-4 border-ipb-cinza hidden md:block">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-5">
-                    <div class="bg-white p-1.5 rounded shadow-lg flex items-center justify-center w-14 h-14 border border-ipb-cinza/10">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBOjMi4teW3L8UpR_g6g5ykbFTbX2Ofl_LKQ&s" alt="Logo IPB" class="max-w-full max-h-full object-contain">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white p-1 rounded w-12 h-12 flex items-center justify-center">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A8Y98XvR9kO40pD0X9F4r5kX3yH2v6E6-A&s" alt="IPB" class="max-h-full">
                     </div>
                     <div>
-                        <h1 class="text-xl font-black tracking-tight leading-none uppercase italic text-white">Gestão Pastoral</h1>
-                        <p class="text-[10px] text-white/80 italic font-medium mt-1">Rev. Paulo Falkaniere</p>
-                        <p id="auth-status" class="text-[8px] text-ipb-ouro mt-0.5 font-bold tracking-[0.2em] uppercase italic">Conectando...</p>
+                        <h1 class="text-lg font-black uppercase italic leading-none">Gestão Pastoral</h1>
+                        <p class="text-[9px] text-ipb-ouro font-bold uppercase tracking-widest" id="auth-status-desktop">Conectando...</p>
                     </div>
                 </div>
-                <div class="hidden md:flex space-x-8 items-center h-full">
-                    <button onclick="showTab('dashboard')" class="nav-link active text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors py-2">Painel</button>
-                    <button onclick="showTab('membros')" class="nav-link text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors py-2">Membros</button>
-                    <button onclick="showTab('visitas')" class="nav-link text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors py-2">Novo Registro</button>
-                    <button onclick="showTab('historico')" class="nav-link text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors py-2">Histórico</button>
+                <div class="flex space-x-6 items-center">
+                    <button onclick="showTab('dashboard')" class="nav-link active text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro py-2">Painel</button>
+                    <button onclick="showTab('membros')" class="nav-link text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro py-2">Membros</button>
+                    <button onclick="showTab('visitas')" class="nav-link text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro py-2">Novo Registro</button>
+                    <button onclick="showTab('historico')" class="nav-link text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro py-2">Histórico</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-4 mt-8 pb-20">
+    <!-- Header Mobile -->
+    <div class="md:hidden bg-ipb-verde p-4 sticky top-0 z-40 shadow-lg border-b-2 border-ipb-ouro flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white p-1 rounded w-8 h-8">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A8Y98XvR9kO40pD0X9F4r5kX3yH2v6E6-A&s" alt="IPB">
+            </div>
+            <h1 class="text-white font-black uppercase italic text-sm tracking-tighter">Rev. Paulo Falkaniere</h1>
+        </div>
+        <div id="auth-status-mobile" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+    </div>
+
+    <!-- Navegação Mobile -->
+    <div class="mobile-nav md:hidden">
+        <button onclick="showTab('dashboard')" class="nav-link text-white flex flex-col items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span class="text-[8px] font-bold uppercase mt-1">Painel</span>
+        </button>
+        <button onclick="showTab('membros')" class="nav-link text-white flex flex-col items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[8px] font-bold uppercase mt-1">Membros</span>
+        </button>
+        <button onclick="showTab('visitas')" class="nav-link text-white flex flex-col items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
+            <span class="text-[8px] font-bold uppercase mt-1">Novo</span>
+        </button>
+        <button onclick="showTab('historico')" class="nav-link text-white flex flex-col items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-[8px] font-bold uppercase mt-1">Histórico</span>
+        </button>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 md:py-10">
+        
         <!-- Dashboard -->
         <section id="dashboard" class="tab-content active">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-ipb-verde uppercase tracking-tighter italic">Resumo do Ministério</h2>
-                <div class="flex items-center space-x-2 bg-white p-2 rounded-lg shadow-sm border border-slate-200">
-                    <span class="text-[9px] font-black text-slate-400 uppercase ml-2">Filtro:</span>
-                    <select id="dash-filter-month" onchange="syncAndApplyFilters('dash')" class="text-[10px] font-black uppercase p-2 outline-none bg-transparent border-r border-slate-100">
-                        <option value="all">Todos os Meses</option>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-xl md:text-2xl font-black text-ipb-verde uppercase italic tracking-tighter">Painel de Atividades</h2>
+                <div class="w-full md:w-auto flex items-center bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+                    <select id="dash-filter-month" onchange="syncAndApplyFilters('dash')" class="flex-1 text-[10px] font-black uppercase p-2 bg-transparent border-r">
+                        <option value="all">Mês: Todos</option>
                         <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
                         <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
                         <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
                         <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
                     </select>
-                    <select id="dash-filter-year" onchange="syncAndApplyFilters('dash')" class="text-[10px] font-black uppercase p-2 outline-none bg-transparent"></select>
+                    <select id="dash-filter-year" onchange="syncAndApplyFilters('dash')" class="flex-1 text-[10px] font-black uppercase p-2 bg-transparent"></select>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-ipb-verde">
-                    <h3 class="text-slate-400 text-[9px] font-black uppercase tracking-widest">Membros no Rol</h3>
-                    <p id="stat-membros" class="text-3xl font-black text-ipb-verde">0</p>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                <div class="bg-white p-4 rounded shadow-sm border-l-4 border-ipb-verde">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Membros</span>
+                    <p id="stat-membros" class="text-2xl font-black text-ipb-verde">0</p>
                 </div>
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-ipb-cinza">
-                    <h3 class="text-slate-400 text-[9px] font-black uppercase tracking-widest">Total de Atos Pastorais</h3>
-                    <p id="stat-visitas-total" class="text-3xl font-black text-ipb-cinza">0</p>
+                <div class="bg-white p-4 rounded shadow-sm border-l-4 border-ipb-cinza">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Atos Pastorais</span>
+                    <p id="stat-visitas-total" class="text-2xl font-black text-ipb-cinza">0</p>
                 </div>
-                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-ipb-ouro">
-                    <h3 class="text-slate-400 text-[9px] font-black uppercase tracking-widest">Momentos de Oração</h3>
-                    <p id="stat-oracoes" class="text-3xl font-black text-ipb-ouro">0</p>
+                <div class="bg-white p-4 rounded shadow-sm border-l-4 border-ipb-ouro">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Orações</span>
+                    <p id="stat-oracoes" class="text-2xl font-black text-ipb-ouro">0</p>
                 </div>
             </div>
 
-            <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4 border-b pb-2 italic">Contagem Detalhada por Natureza</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10" id="stats-categories"></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8" id="stats-categories"></div>
             
-            <div class="bg-white rounded-lg shadow-md p-6 border border-slate-200">
-                <div class="flex justify-between items-center border-b pb-4 mb-4">
-                    <h2 class="text-xs font-black text-ipb-verde uppercase tracking-widest italic">Atividades Recentes</h2>
-                    <span id="dash-range-label" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Geral</span>
-                </div>
-                <div id="activity-list" class="space-y-3 text-sm">
-                    <p class="text-[10px] text-slate-300 italic text-center py-4 uppercase font-bold">Carregando registros...</p>
-                </div>
+            <div class="bg-white rounded shadow-md p-4 md:p-6 border border-slate-200 overflow-hidden">
+                <h2 class="text-[10px] font-black text-ipb-verde uppercase tracking-[0.2em] mb-4 border-b pb-2 italic">Últimos Registros</h2>
+                <div id="activity-list" class="space-y-4"></div>
             </div>
         </section>
 
         <!-- Membros -->
         <section id="membros" class="tab-content">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black text-ipb-verde uppercase italic tracking-tighter">Rol de Membros</h2>
-                <button onclick="toggleModal('modal-membro')" class="bg-ipb-cinza text-white px-6 py-3 rounded font-black text-[10px] uppercase shadow-lg hover:bg-black transition-all border-b-4 border-ipb-ouro">Novo Cadastro</button>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black text-ipb-verde uppercase italic">Rol de Membros</h2>
+                <button onclick="toggleModal('modal-membro')" class="bg-ipb-cinza text-white px-4 py-2 rounded font-black text-[10px] uppercase shadow border-b-2 border-ipb-ouro">Cadastrar</button>
             </div>
-            <div class="bg-white shadow rounded-lg overflow-hidden border border-slate-200">
+            <div class="bg-white shadow rounded-lg border border-slate-200 overflow-hidden">
                 <ul id="lista-membros" class="divide-y divide-slate-100"></ul>
             </div>
         </section>
 
-        <!-- NOVO REGISTRO -->
+        <!-- Novo Registro (Formulário) -->
         <section id="visitas" class="tab-content">
-            <div class="max-w-4xl mx-auto bg-white p-10 rounded-lg shadow-2xl border-t-8 border-ipb-verde">
-                <h2 class="text-2xl font-black text-ipb-verde uppercase mb-2 italic">Relatório Pastoral</h2>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-8 border-b pb-4">Selecione a natureza do ato</p>
+            <div class="bg-white p-5 md:p-10 rounded-lg shadow-xl border-t-8 border-ipb-verde">
+                <h2 class="text-xl font-black text-ipb-verde uppercase italic mb-4">Novo Relatório</h2>
                 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8" id="category-selector">
-                    <button type="button" onclick="setCategory('Visita')" class="category-card p-4 rounded text-center active bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Visita</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Ceia')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Santa Ceia</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Pregacao')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Pregação</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Reuniao')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Reunião</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Batismo')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Batismo/PF</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Casamento')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Casamento</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Producao')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Produção</div>
-                    </button>
-                    <button type="button" onclick="setCategory('Outros')" class="category-card p-4 rounded text-center bg-slate-50">
-                        <div class="text-[10px] font-black uppercase tracking-tighter">Funerais/Outros</div>
-                    </button>
+                <!-- Category Grid (Responsiva) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6" id="category-selector">
+                    <button type="button" onclick="setCategory('Visita')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Visita</button>
+                    <button type="button" onclick="setCategory('Ceia')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Santa Ceia</button>
+                    <button type="button" onclick="setCategory('Pregacao')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Pregação</button>
+                    <button type="button" onclick="setCategory('Reuniao')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Reunião</button>
+                    <button type="button" onclick="setCategory('Batismo')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Batismo</button>
+                    <button type="button" onclick="setCategory('Casamento')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Casamento</button>
+                    <button type="button" onclick="setCategory('Producao')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Produção</button>
+                    <button type="button" onclick="setCategory('Outros')" class="category-card p-3 rounded text-[10px] font-black uppercase bg-slate-50 border">Outros</button>
                 </div>
 
-                <form id="form-visita" class="space-y-6">
+                <form id="form-visita" class="space-y-4">
                     <input type="hidden" id="reg-categoria" value="Visita">
-                    <div id="dynamic-fields" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Data</span>
-                                <input type="date" id="visita-data" required class="w-full p-3 border rounded-md bg-slate-50 outline-none font-bold">
-                            </label>
-                            <label class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Local / Igreja</span>
-                                <input type="text" id="reg-local" class="w-full p-3 border rounded-md bg-slate-50 outline-none" placeholder="Onde ocorreu?">
-                            </label>
-                        </div>
-                        <div id="field-membro-1">
-                            <label class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Membro / Responsável</span>
-                                <select id="visita-membro" class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none"></select>
-                            </label>
-                        </div>
-                        <div id="field-membro-2" class="hidden">
-                            <label class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Segundo Cônjuge</span>
-                                <select id="visita-membro-2" class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none"></select>
-                            </label>
-                        </div>
-                        <div id="fields-pregacao" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Texto Bíblico</span>
-                                <input type="text" id="reg-texto" class="w-full p-3 border rounded-md bg-slate-50 outline-none" placeholder="Ex: João 3:16">
-                            </label>
-                            <label class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Tema da Mensagem</span>
-                                <input type="text" id="reg-tema" class="w-full p-3 border rounded-md bg-slate-50 outline-none" placeholder="Ex: O Amor de Deus">
-                            </label>
-                        </div>
-                        <div id="fields-especificos" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label id="label-tipo" class="block">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Tipo / Natureza</span>
-                                <select id="reg-tipo" class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none"></select>
-                            </label>
-                            <label id="label-extra" class="block hidden">
-                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block tracking-widest">Título / Identificador</span>
-                                <input type="text" id="reg-extra" class="w-full p-3 border rounded-md bg-slate-50 outline-none">
-                            </label>
-                        </div>
-                        <textarea id="visita-obs" rows="4" class="w-full p-3 border rounded-md text-sm outline-none" placeholder="Observações e detalhes..."></textarea>
-                        <div id="field-oracao" class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                            <span class="text-[10px] font-black uppercase text-ipb-ouro mb-2 block tracking-widest italic">Motivos de Intercessão / Oração</span>
-                            <textarea id="visita-oracao" rows="2" class="w-full p-3 border rounded-md text-sm italic outline-none" placeholder="Pelo que oramos?"></textarea>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="block">
+                            <span class="text-[9px] font-black uppercase text-slate-400 block mb-1">Data</span>
+                            <input type="date" id="visita-data" required class="w-full p-3 border rounded bg-slate-50 font-bold outline-none">
+                        </label>
+                        <label class="block">
+                            <span class="text-[9px] font-black uppercase text-slate-400 block mb-1">Local</span>
+                            <input type="text" id="reg-local" class="w-full p-3 border rounded bg-slate-50 outline-none" placeholder="Igreja / Casa">
+                        </label>
                     </div>
-                    <button type="submit" id="btn-save-visita" class="w-full bg-ipb-verde text-white py-4 rounded font-black uppercase text-xs shadow-lg hover:brightness-110 transition-all border-b-4 border-ipb-cinza">Sincronizar Relatório</button>
+
+                    <div id="field-membro-1">
+                        <span class="text-[9px] font-black uppercase text-slate-400 block mb-1">Membro Responsável</span>
+                        <select id="visita-membro" class="w-full p-3 border rounded bg-slate-50 font-bold outline-none"></select>
+                    </div>
+
+                    <div id="fields-pregacao" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="reg-texto" class="w-full p-3 border rounded bg-slate-50" placeholder="Texto Bíblico">
+                        <input type="text" id="reg-tema" class="w-full p-3 border rounded bg-slate-50" placeholder="Tema">
+                    </div>
+
+                    <label class="block">
+                        <span class="text-[9px] font-black uppercase text-slate-400 block mb-1">Tipo de Ação</span>
+                        <select id="reg-tipo" class="w-full p-3 border rounded bg-slate-50 font-bold outline-none"></select>
+                    </label>
+
+                    <textarea id="visita-obs" rows="3" class="w-full p-3 border rounded text-sm italic" placeholder="Resumo do atendimento..."></textarea>
+                    
+                    <div id="field-oracao" class="bg-ipb-ouro/5 p-4 rounded border-l-4 border-ipb-ouro">
+                        <span class="text-[9px] font-black uppercase text-ipb-ouro block mb-2 tracking-widest">Motivos de Oração</span>
+                        <textarea id="visita-oracao" rows="2" class="w-full p-2 border rounded bg-white text-sm" placeholder="O que apresentamos a Deus?"></textarea>
+                    </div>
+
+                    <button type="submit" id="btn-save-visita" class="w-full bg-ipb-verde text-white py-4 rounded font-black uppercase text-xs shadow-lg border-b-4 border-ipb-cinza active:scale-95 transition-all">Sincronizar Relatório</button>
                 </form>
             </div>
         </section>
 
         <!-- Histórico -->
         <section id="historico" class="tab-content">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <h2 class="text-2xl font-black text-ipb-verde uppercase tracking-tighter italic">Memória Ministerial</h2>
-            </div>
+            <h2 class="text-xl font-black text-ipb-verde uppercase italic mb-6">Histórico Ministerial</h2>
             
-            <!-- Novos Filtros Dinâmicos -->
-            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Período</span>
-                    <div class="flex items-center space-x-1 border rounded p-1">
-                        <select id="filter-month" onchange="updateUI()" class="text-[10px] font-black uppercase p-2 outline-none flex-1 bg-transparent border-r border-slate-100">
-                            <option value="all">Mês: Todos</option>
-                            <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-                            <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-                            <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-                            <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
-                        </select>
-                        <select id="filter-year" onchange="updateUI()" class="text-[10px] font-black uppercase p-2 outline-none flex-1 bg-transparent"></select>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Natureza</span>
-                    <select id="filter-category" onchange="updateHistorySubtypes()" class="border rounded p-3 text-[10px] font-black uppercase outline-none">
-                        <option value="all">Todas as Categorias</option>
-                        <option value="Visita">Visitas</option>
-                        <option value="Ceia">Santa Ceia</option>
-                        <option value="Pregacao">Pregações</option>
-                        <option value="Reuniao">Reuniões</option>
-                        <option value="Batismo">Batismos</option>
-                        <option value="Casamento">Casamentos</option>
-                        <option value="Producao">Produção</option>
-                        <option value="Outros">Diversos</option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Tipo de Registro</span>
-                    <select id="filter-type" onchange="updateUI()" class="border rounded p-3 text-[10px] font-black uppercase outline-none">
-                        <option value="all">Todos os Tipos</option>
-                    </select>
-                </div>
-
-                <div class="flex items-end">
-                    <button onclick="resetFilters()" class="w-full text-center py-3 text-[9px] font-black uppercase text-ipb-ouro hover:text-ipb-verde transition-colors tracking-widest border border-dashed border-ipb-ouro/30 rounded">Limpar Filtros</button>
-                </div>
+            <!-- Filtros Responsivos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mb-6">
+                <select id="filter-month" onchange="updateUI()" class="p-3 border rounded text-[10px] font-black uppercase bg-white">
+                    <option value="all">Mês: Todos</option>
+                    <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                    <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                    <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                    <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                </select>
+                <select id="filter-year" onchange="updateUI()" class="p-3 border rounded text-[10px] font-black uppercase bg-white"></select>
+                <select id="filter-category" onchange="updateHistorySubtypes()" class="p-3 border rounded text-[10px] font-black uppercase bg-white">
+                    <option value="all">Categorias: Todas</option>
+                    <option value="Visita">Visitas</option>
+                    <option value="Ceia">Santa Ceia</option>
+                    <option value="Pregacao">Pregações</option>
+                    <option value="Reuniao">Reuniões</option>
+                    <option value="Batismo">Batismos</option>
+                    <option value="Casamento">Casamentos</option>
+                    <option value="Producao">Produção</option>
+                    <option value="Outros">Outros</option>
+                </select>
+                <select id="filter-type" onchange="updateUI()" class="p-3 border rounded text-[10px] font-black uppercase bg-white">
+                    <option value="all">Tipo: Todos</option>
+                </select>
             </div>
 
-            <div id="timeline-visitas" class="space-y-6"></div>
+            <div class="flex items-center space-x-2 mb-6 px-2">
+                <span class="text-[9px] font-black uppercase text-slate-400">Total Encontrado:</span>
+                <span id="history-total-counter" class="bg-ipb-verde text-white px-3 py-1 rounded-full text-[10px] font-black">0</span>
+            </div>
+
+            <div id="timeline-visitas" class="space-y-4"></div>
         </section>
     </main>
 
-    <!-- Modais -->
-    <div id="modal-membro" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-        <div class="bg-white rounded-lg max-w-md w-full p-8 border-t-8 border-ipb-cinza shadow-2xl">
-            <h2 class="text-xl font-black text-ipb-verde uppercase mb-6 text-center italic">Novo Membro no Rol</h2>
-            <form id="form-membro" class="space-y-4">
-                <input type="text" id="membro-nome" placeholder="Nome Completo" required class="w-full p-3 border rounded bg-slate-50 font-medium">
-                <input type="tel" id="membro-tel" placeholder="Contacto / WhatsApp" class="w-full p-3 border rounded bg-slate-50">
-                <input type="text" id="membro-end" placeholder="Morada / Residência" class="w-full p-3 border rounded bg-slate-50">
-                <button type="submit" id="btn-save-membro" class="w-full bg-ipb-verde text-white py-3 rounded font-black uppercase text-xs">Confirmar Cadastro</button>
-                <button type="button" onclick="toggleModal('modal-membro')" class="w-full text-slate-400 text-[10px] font-black uppercase mt-2">Cancelar</button>
+    <!-- Modal Membro -->
+    <div id="modal-membro" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-lg max-w-sm w-full p-6 shadow-2xl">
+            <h2 class="text-lg font-black text-ipb-verde uppercase mb-4 text-center">Novo Membro</h2>
+            <form id="form-membro" class="space-y-3">
+                <input type="text" id="membro-nome" placeholder="Nome Completo" required class="w-full p-3 border rounded text-sm">
+                <input type="tel" id="membro-tel" placeholder="Telefone" class="w-full p-3 border rounded text-sm">
+                <button type="submit" class="w-full bg-ipb-verde text-white py-3 rounded font-black uppercase text-[10px]">Cadastrar</button>
+                <button type="button" onclick="toggleModal('modal-membro')" class="w-full text-slate-400 text-[9px] font-black uppercase">Fechar</button>
             </form>
         </div>
     </div>
 
-    <div id="msg-box" class="fixed bottom-10 right-10 hidden bg-ipb-cinza border-l-8 border-ipb-ouro text-white px-8 py-4 rounded shadow-2xl z-50 font-black uppercase text-[10px]"></div>
+    <!-- Mensagens -->
+    <div id="msg-box" class="fixed bottom-20 md:bottom-10 right-4 left-4 md:left-auto md:w-64 hidden bg-ipb-cinza text-white px-6 py-4 rounded shadow-2xl z-50 font-black uppercase text-[9px] border-l-4 border-ipb-ouro animate-bounce"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -288,7 +287,7 @@
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse('{"apiKey":"AIzaSyAkwAqjPI2sBHglpURT3eL3mn3GumrzFH0","authDomain":"visitaspastorais.firebaseapp.com","projectId":"visitaspastorais","storageBucket":"visitaspastorais.firebasestorage.app","messagingSenderId":"405839357174","appId":"1:405839357174:web:f34c27443e1ce3b13eb8d7"}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pastoral-v3-multi';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pastoral-mobile-v1';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -299,22 +298,25 @@
         let globalVisitas = [];
 
         const categoriesList = [
-            { id: 'Visita', label: 'Visitas', sub: 'Assistência aos lares', color: 'border-ipb-verde', types: ['Visita Residencial', 'Aconselhamento', 'Discipulado', 'Hospitalar', 'Gabinete'] },
-            { id: 'Ceia', label: 'Santa Ceia', sub: 'Sacramentos ministrados', color: 'border-ipb-ouro', types: ['Igreja', 'Residencial', 'Hospitalar'] },
-            { id: 'Pregacao', label: 'Pregações', sub: 'Mensagens proclamadas', color: 'border-ipb-verde', types: ['Culto Solene', 'Doutrinário', 'Evangelístico', 'Congresso'] },
-            { id: 'Reuniao', label: 'Reuniões', sub: 'Concílios e comissões', color: 'border-ipb-cinza', types: ['Conselho', 'Reunião de Oração', 'Comissão', 'Sociedade Interna'] },
-            { id: 'Batismo', label: 'Batismos', sub: 'PF e batismos realizados', color: 'border-ipb-verde', types: ['Infantil', 'Profissão de Fé e Batismo', 'Apenas Profissão de Fé'] },
-            { id: 'Casamento', label: 'Casamentos', sub: 'Uniões abençoadas', color: 'border-ipb-ouro', types: ['Religioso com Efeito Civil', 'Apenas Religioso', 'Benção Nupcial'] },
-            { id: 'Producao', label: 'Produções', sub: 'Conteúdos teológicos', color: 'border-ipb-cinza', types: ['Artigo Escrito', 'Podcast', 'Vídeo', 'Rádio'] },
-            { id: 'Outros', label: 'Diversos', sub: 'Funerais e evangelismo', color: 'border-slate-300', types: ['Funeral', 'Evangelização', 'Outros'] }
+            { id: 'Visita', label: 'Visitas', sub: 'Assistência', color: 'border-ipb-verde', types: ['Residencial', 'Aconselhamento', 'Discipulado', 'Hospitalar', 'Gabinete'] },
+            { id: 'Ceia', label: 'Ceia', sub: 'Sacramentos', color: 'border-ipb-ouro', types: ['Igreja', 'Residencial', 'Hospitalar'] },
+            { id: 'Pregacao', label: 'Pregações', sub: 'Ministrações', color: 'border-ipb-verde', types: ['Solene', 'Doutrinário', 'Evangelístico'] },
+            { id: 'Reuniao', label: 'Reuniões', sub: 'Concílios', color: 'border-ipb-cinza', types: ['Conselho', 'Oração', 'Comissão'] },
+            { id: 'Batismo', label: 'Batismos', sub: 'Ordenanças', color: 'border-ipb-verde', types: ['Infantil', 'PF e Batismo', 'Apenas PF'] },
+            { id: 'Casamento', label: 'Casamentos', sub: 'Uniões', color: 'border-ipb-ouro', types: ['Civil/Religioso', 'Religioso', 'Bênção'] },
+            { id: 'Producao', label: 'Produção', sub: 'Mídias', color: 'border-ipb-cinza', types: ['Artigo', 'Podcast', 'Vídeo'] },
+            { id: 'Outros', label: 'Outros', sub: 'Diversos', color: 'border-slate-300', types: ['Funeral', 'Evangelismo', 'Outros'] }
         ];
 
         window.showTab = (id) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            const activeBtn = Array.from(document.querySelectorAll('.nav-link')).find(b => b.getAttribute('onclick').includes(id));
-            if(activeBtn) activeBtn.classList.add('active');
+            
+            // Ativar botões em ambas as barras (desktop e mobile)
+            const activeBtns = Array.from(document.querySelectorAll('.nav-link')).filter(b => b.getAttribute('onclick').includes(id));
+            activeBtns.forEach(b => b.classList.add('active'));
+            window.scrollTo(0,0);
         };
 
         window.toggleModal = (id) => document.getElementById(id).classList.toggle('hidden');
@@ -323,11 +325,7 @@
         const populateYears = () => {
             ['dash-filter-year', 'filter-year'].forEach(id => {
                 const el = document.getElementById(id);
-                let html = '<option value="all">Ano: Todos</option>';
-                [currentYear - 1, currentYear, currentYear + 1].forEach(y => {
-                    html += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
-                });
-                el.innerHTML = html;
+                el.innerHTML = [currentYear - 1, currentYear, currentYear + 1].map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Ano: ${y}</option>`).join('');
             });
         };
         populateYears();
@@ -336,55 +334,25 @@
             const cat = categoriesList.find(c => c.id === catId);
             document.getElementById('reg-categoria').value = catId;
             document.querySelectorAll('.category-card').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.innerText.toUpperCase().includes(catId.toUpperCase()) || (catId === 'Pregacao' && btn.innerText.includes('PREGAÇÃO')) || (catId === 'Producao' && btn.innerText.includes('PRODUÇÃO'))) {
-                    btn.classList.add('active');
-                }
+                btn.classList.toggle('active', btn.textContent.includes(cat.label));
             });
 
             const typeSel = document.getElementById('reg-tipo');
-            const fieldsPregacao = document.getElementById('fields-pregacao');
-            const fieldMembro1 = document.getElementById('field-membro-1');
-            const labelExtra = document.getElementById('label-extra');
-            const fieldOracao = document.getElementById('field-oracao');
-
-            // Reset
-            fieldsPregacao.classList.add('hidden');
-            fieldMembro1.classList.remove('hidden');
-            labelExtra.classList.add('hidden');
-            fieldOracao.classList.remove('hidden');
-
             typeSel.innerHTML = cat.types.map(t => `<option value="${t}">${t}</option>`).join('');
-
-            if(catId === 'Ceia' || catId === 'Pregacao' || catId === 'Reuniao' || catId === 'Casamento' || catId === 'Producao') {
-                fieldMembro1.classList.add('hidden');
-            }
-            if(catId === 'Pregacao') fieldsPregacao.classList.remove('hidden');
-            if(catId === 'Producao') {
-                labelExtra.classList.remove('hidden');
-                fieldOracao.classList.add('hidden');
-            }
+            
+            document.getElementById('fields-pregacao').classList.toggle('hidden', catId !== 'Pregacao');
+            document.getElementById('field-membro-1').classList.toggle('hidden', ['Pregacao', 'Ceia', 'Reuniao', 'Producao'].includes(catId));
         };
 
         window.updateHistorySubtypes = () => {
             const catId = document.getElementById('filter-category').value;
             const typeSel = document.getElementById('filter-type');
-            
             if (catId === 'all') {
                 typeSel.innerHTML = '<option value="all">Todos os Tipos</option>';
             } else {
                 const cat = categoriesList.find(c => c.id === catId);
-                typeSel.innerHTML = '<option value="all">Todos de ' + cat.label + '</option>' + 
-                    cat.types.map(t => `<option value="${t}">${t}</option>`).join('');
+                typeSel.innerHTML = `<option value="all">Todos de ${cat.label}</option>` + cat.types.map(t => `<option value="${t}">${t}</option>`).join('');
             }
-            updateUI();
-        };
-
-        window.resetFilters = () => {
-            document.getElementById('filter-month').value = 'all';
-            document.getElementById('filter-year').value = currentYear;
-            document.getElementById('filter-category').value = 'all';
-            document.getElementById('filter-type').innerHTML = '<option value="all">Todos os Tipos</option>';
             updateUI();
         };
 
@@ -399,26 +367,23 @@
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             if (!user) return;
-            document.getElementById('auth-status').innerText = "CONECTADO À NUVEM IPB";
+            const statusD = document.getElementById('auth-status-desktop');
+            const statusM = document.getElementById('auth-status-mobile');
+            statusD.innerText = "NUVEM CONECTADA";
+            statusM.classList.replace('bg-red-500', 'bg-ipb-ouro');
             
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), (snap) => {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), snap => {
                 globalMembros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 updateUI();
-            }, (err) => console.error(err));
+            });
 
-            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), (snap) => {
+            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), snap => {
                 globalVisitas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 updateUI();
-            }, (err) => console.error(err));
+            });
         });
 
-        window.syncAndApplyFilters = (source) => {
-            const mHist = document.getElementById('filter-month'), yHist = document.getElementById('filter-year');
-            const mDash = document.getElementById('dash-filter-month'), yDash = document.getElementById('dash-filter-year');
-            if (source === 'hist') { mDash.value = mHist.value; yDash.value = yHist.value; }
-            else { mHist.value = mDash.value; yHist.value = yDash.value; }
-            updateUI();
-        };
+        window.syncAndApplyFilters = () => updateUI();
 
         function showMessage(m) {
             const b = document.getElementById('msg-box');
@@ -427,125 +392,87 @@
         }
 
         function updateUI() {
-            // Dashboard Filters
-            const mDashFilter = document.getElementById('dash-filter-month').value;
-            const yDashFilter = document.getElementById('dash-filter-year').value;
+            const mDash = document.getElementById('dash-filter-month').value;
+            const yDash = document.getElementById('dash-filter-year').value;
             
-            // History Filters
-            const mHistFilter = document.getElementById('filter-month').value;
-            const yHistFilter = document.getElementById('filter-year').value;
-            const catFilter = document.getElementById('filter-category').value;
-            const typeFilter = document.getElementById('filter-type').value;
+            const mHist = document.getElementById('filter-month').value;
+            const yHist = document.getElementById('filter-year').value;
+            const catH = document.getElementById('filter-category').value;
+            const typeH = document.getElementById('filter-type').value;
 
-            // Dashboard Viewport
             const filteredDash = globalVisitas.filter(v => {
-                const vDate = new Date(v.data + 'T00:00:00');
-                return (mDashFilter === 'all' || vDate.getMonth().toString() === mDashFilter) && (yDashFilter === 'all' || vDate.getFullYear().toString() === yDashFilter);
+                const d = new Date(v.data + 'T00:00:00');
+                return (mDash === 'all' || d.getMonth().toString() === mDash) && (yDash === 'all' || d.getFullYear().toString() === yDash);
             });
 
-            // History Viewport
             const filteredHist = globalVisitas.filter(v => {
-                const vDate = new Date(v.data + 'T00:00:00');
-                const matchDate = (mHistFilter === 'all' || vDate.getMonth().toString() === mHistFilter) && (yHistFilter === 'all' || vDate.getFullYear().toString() === yHistFilter);
-                const matchCat = (catFilter === 'all' || v.categoria === catFilter);
-                const matchType = (typeFilter === 'all' || v.tipo === typeFilter);
-                return matchDate && matchCat && matchType;
+                const d = new Date(v.data + 'T00:00:00');
+                const matchD = (mHist === 'all' || d.getMonth().toString() === mHist) && (yHist === 'all' || d.getFullYear().toString() === yHist);
+                const matchC = (catH === 'all' || v.categoria === catH);
+                const matchT = (typeH === 'all' || v.tipo === typeH);
+                return matchD && matchC && matchT;
             }).sort((a,b) => new Date(b.data) - new Date(a.data));
 
-            // Stats Update (Always based on Dash filters)
+            document.getElementById('history-total-counter').innerText = filteredHist.length;
             document.getElementById('stat-membros').innerText = globalMembros.length;
             document.getElementById('stat-visitas-total').innerText = filteredDash.length;
             document.getElementById('stat-oracoes').innerText = filteredDash.filter(v => v.oracao).length;
 
             document.getElementById('stats-categories').innerHTML = categoriesList.map(cat => {
                 const count = filteredDash.filter(v => v.categoria === cat.id).length;
-                return `
-                <div class="bg-white p-5 rounded-lg border-b-4 ${cat.color} shadow-sm flex flex-col items-center justify-center text-center">
-                    <span class="text-[8px] font-black uppercase text-slate-300 tracking-[0.2em] mb-1">${cat.id}</span>
-                    <h4 class="text-xs font-black uppercase text-ipb-verde tracking-tight">${cat.label}</h4>
-                    <p class="text-[9px] text-slate-400 font-medium mb-3 italic">${cat.sub}</p>
-                    <p class="text-4xl font-black text-ipb-cinza">${count}</p>
+                return `<div class="bg-white p-3 rounded border-b-2 ${cat.color} flex flex-col items-center justify-center text-center shadow-sm">
+                    <span class="text-[7px] font-black uppercase text-slate-300 leading-none mb-1">${cat.label}</span>
+                    <p class="text-xl font-black text-ipb-cinza">${count}</p>
                 </div>`;
             }).join('');
 
-            const dashLabel = document.getElementById('dash-range-label');
-            const mText = mDashFilter === 'all' ? '' : document.getElementById('dash-filter-month').options[document.getElementById('dash-filter-month').selectedIndex].text;
-            dashLabel.innerText = `${mText} ${yDashFilter === 'all' ? '' : yDashFilter}`.trim() || "Consolidado Geral";
-
-            const opts = '<option value="">(Nenhum Selecionado)</option>' + globalMembros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-            document.getElementById('visita-membro').innerHTML = opts;
-            document.getElementById('visita-membro-2').innerHTML = opts;
+            const membroOpts = '<option value="">(Selecione)</option>' + globalMembros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+            document.getElementById('visita-membro').innerHTML = membroOpts;
 
             document.getElementById('lista-membros').innerHTML = globalMembros.map(m => `
-                <li class="p-4 flex justify-between items-center hover:bg-slate-50">
+                <li class="p-3 flex justify-between items-center">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-ipb-verde text-white rounded-full flex items-center justify-center font-bold text-xs">${m.nome.charAt(0)}</div>
-                        <div><p class="font-bold text-sm uppercase text-ipb-verde tracking-tighter">${m.nome}</p><p class="text-[9px] text-slate-400 font-bold">${m.tel || 'Sem contacto'}</p></div>
+                        <span class="font-bold text-xs uppercase text-ipb-verde">${m.nome}</span>
                     </div>
-                    <button onclick="window.deleteMembro('${m.id}')" class="text-slate-300 hover:text-red-500 text-xl px-2">&times;</button>
+                    <button onclick="window.deleteMembro('${m.id}')" class="text-slate-300 px-2">&times;</button>
                 </li>
             `).join('');
 
             document.getElementById('timeline-visitas').innerHTML = filteredHist.map(v => {
-                const m1 = globalMembros.find(x => x.id === v.membroId)?.nome || '';
-                const m2 = globalMembros.find(x => x.id === v.membroId2)?.nome || '';
-                const catDef = categoriesList.find(c => c.id === v.categoria);
-                const color = catDef ? catDef.color : 'border-slate-300';
-                
-                let title = `${v.categoria}: ${v.tipo}`;
-                if (['Pregacao', 'Ceia', 'Casamento'].includes(v.categoria)) title = `Rev. Paulo: ${v.categoria} (${v.tipo})`;
-                else if (m1) title = m1 + (m2 ? ` & ${m2}` : '');
-                
-                return `<div class="bg-white p-6 rounded-lg border-l-4 ${color} shadow-sm relative group">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <span class="font-black text-xs uppercase tracking-tight text-ipb-cinza">${title}</span>
-                            <div class="flex items-center space-x-2 mt-1">
-                                <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100">${v.categoria}</span>
-                                <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100">${v.local || 'Local N/I'}</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-black text-slate-400 border border-slate-100 px-2 py-1 rounded">${new Date(v.data + 'T00:00:00').toLocaleDateString('pt-PT')}</span>
+                const m = globalMembros.find(x => x.id === v.membroId)?.nome || v.local || v.categoria;
+                const cat = categoriesList.find(c => c.id === v.categoria);
+                return `<div class="bg-white p-4 rounded-lg border-l-4 ${cat?.color || 'border-slate-300'} shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <span class="font-black text-[10px] uppercase text-ipb-cinza truncate pr-8">${m}</span>
+                        <span class="text-[8px] font-bold text-slate-400 whitespace-nowrap">${new Date(v.data + 'T00:00:00').toLocaleDateString()}</span>
                     </div>
-                    ${v.texto ? `<p class="text-[10px] font-black text-ipb-verde mt-2 uppercase tracking-widest">${v.texto} - ${v.tema}</p>` : ''}
-                    <p class="text-sm text-slate-600 my-3 leading-relaxed italic">"${v.obs || 'Sem descrição'}"</p>
-                    ${v.oracao ? `<div class="text-[10px] p-3 bg-ipb-ouro/5 text-ipb-ouro border-l-2 border-ipb-ouro mt-2 italic font-medium"><strong>Intercessão:</strong> ${v.oracao}</div>` : ''}
-                    <button onclick="window.deleteVisita('${v.id}')" class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[8px] text-red-300 uppercase font-bold hover:text-red-600">Excluir</button>
+                    <div class="text-[8px] font-black text-ipb-ouro uppercase mt-1">${v.categoria} • ${v.tipo}</div>
+                    <p class="text-xs text-slate-600 mt-2 italic leading-relaxed">"${v.obs || 'Nenhuma observação...'}"</p>
+                    <button onclick="window.deleteVisita('${v.id}')" class="absolute top-4 right-4 text-slate-200 hover:text-red-500">&times;</button>
                 </div>`;
-            }).join('') || '<p class="text-center py-20 text-slate-300 italic text-xs uppercase font-black tracking-[0.4em]">Nenhum registro encontrado nos filtros selecionados</p>';
-            
-            document.getElementById('activity-list').innerHTML = filteredDash.slice(0, 10).sort((a,b) => new Date(b.data) - new Date(a.data)).map(v => {
-                const m = globalMembros.find(x => x.id === v.membroId)?.nome || (['Pregacao', 'Ceia', 'Casamento'].includes(v.categoria) ? 'Rev. Paulo' : v.local || 'Atividade');
-                return `<div class="flex justify-between items-center border-b border-slate-50 pb-3 last:border-0">
-                    <div class="flex flex-col"><span class="font-bold uppercase text-ipb-verde text-[10px] tracking-tight italic">${m}</span><span class="text-[8px] text-slate-400 font-black uppercase tracking-widest">${v.categoria} • ${v.tipo}</span></div>
-                    <div class="text-right"><span class="text-slate-400 font-bold text-[9px] block">${new Date(v.data + 'T00:00:00').toLocaleDateString()}</span></div>
+            }).join('') || '<p class="text-center py-10 text-slate-300 text-[10px] font-black uppercase tracking-widest">Nenhum registro</p>';
+
+            document.getElementById('activity-list').innerHTML = filteredDash.slice(0, 5).map(v => {
+                const m = globalMembros.find(x => x.id === v.membroId)?.nome || v.local || v.categoria;
+                return `<div class="flex justify-between items-center text-[10px]">
+                    <span class="font-bold text-ipb-verde uppercase truncate flex-1">${m}</span>
+                    <span class="text-slate-400 font-bold ml-2">${new Date(v.data + 'T00:00:00').toLocaleDateString()}</span>
                 </div>`;
             }).join('');
         }
 
-        window.deleteMembro = async (id) => {
-            if (confirm("Deseja remover este membro do rol digital?")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'membros', id));
-                showMessage("Membro removido.");
-            }
-        };
-
-        window.deleteVisita = async (id) => {
-            if (confirm("Excluir este registo permanentemente?")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'visitas', id));
-                showMessage("Registo excluído.");
-            }
-        };
+        window.deleteMembro = async (id) => { if(confirm("Remover membro?")) await deleteDoc(doc(db,'artifacts',appId,'public','data','membros',id)); };
+        window.deleteVisita = async (id) => { if(confirm("Excluir registro?")) await deleteDoc(doc(db,'artifacts',appId,'users',currentUser.uid,'visitas',id)); };
 
         document.getElementById('form-membro').onsubmit = async (e) => {
             e.preventDefault();
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), {
+            await addDoc(collection(db,'artifacts',appId,'public','data','membros'), {
                 nome: document.getElementById('membro-nome').value,
                 tel: document.getElementById('membro-tel').value,
-                end: document.getElementById('membro-end').value,
                 createdAt: new Date().toISOString()
             });
-            e.target.reset(); toggleModal('modal-membro'); showMessage("Cadastro realizado.");
+            e.target.reset(); toggleModal('modal-membro'); showMessage("Membro Salvo!");
         };
 
         document.getElementById('form-visita').onsubmit = async (e) => {
@@ -553,31 +480,27 @@
             const btn = document.getElementById('btn-save-visita');
             btn.disabled = true;
             try {
-                const cat = document.getElementById('reg-categoria').value;
-                const isAuto = ['Pregacao', 'Ceia', 'Reuniao', 'Casamento', 'Producao'].includes(cat);
-                
-                await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'visitas'), {
-                    categoria: cat,
-                    membroId: isAuto ? "" : document.getElementById('visita-membro').value,
-                    membroId2: isAuto ? "" : document.getElementById('visita-membro-2').value,
+                await addDoc(collection(db,'artifacts',appId,'users',currentUser.uid,'visitas'), {
+                    categoria: document.getElementById('reg-categoria').value,
+                    membroId: document.getElementById('visita-membro').value,
                     data: document.getElementById('visita-data').value,
                     local: document.getElementById('reg-local').value,
                     tipo: document.getElementById('reg-tipo').value,
                     texto: document.getElementById('reg-texto').value,
                     tema: document.getElementById('reg-tema').value,
-                    extra: document.getElementById('reg-extra').value,
                     obs: document.getElementById('visita-obs').value,
                     oracao: document.getElementById('visita-oracao').value,
                     timestamp: new Date().toISOString()
                 });
-                e.target.reset(); showTab('dashboard'); showMessage("Relatório Salvo!");
-            } catch (err) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; }
+                e.target.reset(); showTab('dashboard'); showMessage("Relatório Enviado!");
+            } finally { btn.disabled = false; }
         };
 
-        // Init default category
-        window.onload = () => { setCategory('Visita'); };
+        window.onload = () => { 
+            setCategory('Visita');
+            const selects = document.querySelectorAll('select');
+            selects.forEach(s => s.addEventListener('touchstart', (e) => e.stopPropagation()));
+        };
     </script>
 </body>
 </html>
-
