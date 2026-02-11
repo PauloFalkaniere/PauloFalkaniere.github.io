@@ -51,7 +51,7 @@
                 <div class="hidden md:flex space-x-8 items-center">
                     <button onclick="showTab('dashboard')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors">Painel</button>
                     <button onclick="showTab('membros')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors">Membros</button>
-                    <button onclick="showTab('visitas')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors text-ipb-ouro">Registrar Visita</button>
+                    <button onclick="showTab('visitas')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors text-ipb-ouro">Novo Registro</button>
                     <button onclick="showTab('historico')" class="text-[10px] font-black uppercase tracking-widest hover:text-ipb-ouro transition-colors">Histórico</button>
                 </div>
             </div>
@@ -59,95 +59,154 @@
     </nav>
 
     <main class="max-w-5xl mx-auto p-4 mt-8 pb-20">
-        <!-- Banner de Alerta de Erro -->
-        <div id="config-alert" class="hidden mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-6 rounded shadow-lg">
-            <p class="font-black underline uppercase text-xs mb-2 italic">Ação Necessária no Console Firebase:</p>
-            <div id="error-msg" class="text-xs leading-relaxed space-y-2">
-                <p>O serviço de autenticação ainda não está pronto para receber dados.</p>
-                <div class="bg-white/50 p-3 rounded border border-red-200">
-                    <strong>Passo a Passo:</strong>
-                    <ol class="list-decimal ml-4 mt-1 space-y-1">
-                        <li>Abra o <a href="https://console.firebase.google.com/" target="_blank" class="underline font-bold text-red-800">Console Firebase</a>.</li>
-                        <li>No menu à esquerda, clique em <strong>Criação</strong> > <strong>Authentication</strong>.</li>
-                        <li>Clique na aba <strong>Sign-in method</strong> no topo.</li>
-                        <li>Clique em <strong>Adicionar novo provedor</strong>.</li>
-                        <li>Selecione <strong>Anônimo</strong> (na parte de baixo da lista).</li>
-                        <li>Ative a chave e clique em <strong>Salvar</strong>.</li>
-                    </ol>
+        <!-- Dashboard (Painel Principal) -->
+        <section id="dashboard" class="tab-content active">
+            <!-- Filtros do Painel -->
+            <div class="flex justify-end mb-4">
+                <div class="flex items-center space-x-2 bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+                    <span class="text-[9px] font-black text-slate-400 uppercase ml-2">Filtro do Painel:</span>
+                    <select id="dash-filter-month" onchange="applyFilters()" class="text-[10px] font-black uppercase p-2 outline-none bg-transparent border-r border-slate-100">
+                        <option value="all">Todos os Meses</option>
+                        <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                        <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                        <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                        <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                    </select>
+                    <select id="dash-filter-year" onchange="applyFilters()" class="text-[10px] font-black uppercase p-2 outline-none bg-transparent">
+                        <option value="all">Todos os Anos</option>
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                    </select>
                 </div>
             </div>
-        </div>
 
-        <!-- DASHBOARD -->
-        <section id="dashboard" class="tab-content active">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-ipb-verde">
                     <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Membros no Rol</h3>
                     <p id="stat-membros" class="text-4xl font-black text-ipb-verde">0</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-ipb-cinza">
-                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Total de Visitas</h3>
+                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Atendimentos no Período</h3>
                     <p id="stat-visitas-total" class="text-4xl font-black text-ipb-cinza">0</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-ipb-ouro">
-                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Pedidos de Oração</h3>
+                    <h3 class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Intercessões no Período</h3>
                     <p id="stat-oracoes" class="text-4xl font-black text-ipb-ouro">0</p>
                 </div>
             </div>
+            
             <div class="bg-white rounded-lg shadow-md p-6 border border-slate-200">
-                <h2 class="text-xs font-black text-ipb-verde uppercase tracking-widest border-b pb-4 mb-4">Últimas Atividades</h2>
+                <div class="flex justify-between items-center border-b pb-4 mb-4">
+                    <h2 class="text-xs font-black text-ipb-verde uppercase tracking-widest italic">Visitas no Período Selecionado</h2>
+                    <span id="dash-range-label" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Geral</span>
+                </div>
                 <div id="activity-list" class="space-y-3">
-                    <p class="text-[10px] text-slate-300 italic text-center py-4">Aguardando conexão com o servidor...</p>
+                    <p class="text-[10px] text-slate-300 italic text-center py-4">Sincronizando registros...</p>
                 </div>
             </div>
         </section>
 
-        <!-- MEMBROS -->
+        <!-- Membros -->
         <section id="membros" class="tab-content">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-2xl font-black text-ipb-verde uppercase">Rol de Membros</h2>
-                <button onclick="toggleModal('modal-membro')" class="bg-ipb-cinza text-white px-6 py-3 rounded font-black text-[10px] uppercase shadow-lg">Novo Membro</button>
+                <button onclick="toggleModal('modal-membro')" class="bg-ipb-cinza text-white px-6 py-3 rounded font-black text-[10px] uppercase shadow-lg hover:bg-black transition-all">Novo Cadastro</button>
             </div>
             <div class="bg-white shadow rounded-lg overflow-hidden border border-slate-200">
                 <ul id="lista-membros" class="divide-y divide-slate-100"></ul>
             </div>
         </section>
 
-        <!-- VISITAS -->
+        <!-- NOVO REGISTRO -->
         <section id="visitas" class="tab-content">
             <div class="max-w-2xl mx-auto bg-white p-10 rounded-lg shadow-2xl border-t-8 border-ipb-verde">
-                <h2 class="text-2xl font-black text-ipb-verde uppercase mb-6">Relatório Pastoral</h2>
+                <h2 class="text-2xl font-black text-ipb-verde uppercase mb-2">Relatório Pastoral</h2>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-8 border-b pb-4">Selecione a natureza do atendimento</p>
+                
                 <form id="form-visita" class="space-y-6">
-                    <select id="visita-membro" required class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none"></select>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="date" id="visita-data" required class="w-full p-3 border rounded-md bg-slate-50 outline-none">
-                        <select id="visita-tipo" class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none">
-                            <option>Residencial</option><option>Hospitalar</option><option>Gabinete</option><option>Remoto</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="natureza" value="Familiar" checked class="peer sr-only">
+                            <div class="p-4 border-2 rounded-lg text-center font-black uppercase text-[10px] peer-checked:border-ipb-verde peer-checked:bg-ipb-verde/5 transition-all text-slate-400 peer-checked:text-ipb-verde">Familiar</div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="natureza" value="Individual" class="peer sr-only">
+                            <div class="p-4 border-2 rounded-lg text-center font-black uppercase text-[10px] peer-checked:border-ipb-ouro peer-checked:bg-ipb-ouro/5 transition-all text-slate-400 peer-checked:text-ipb-ouro">Individual</div>
+                        </label>
                     </div>
-                    <textarea id="visita-obs" rows="4" class="w-full p-3 border rounded-md text-sm outline-none" placeholder="Observações..."></textarea>
-                    <textarea id="visita-oracao" rows="2" class="w-full p-3 border rounded-md text-sm italic outline-none" placeholder="Motivos de oração..."></textarea>
-                    <button type="submit" id="btn-save-visita" class="w-full bg-ipb-verde text-white py-4 rounded font-black uppercase text-xs shadow-lg">Salvar Registro</button>
+
+                    <div class="space-y-4">
+                        <label class="block">
+                            <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Membro / Responsável</span>
+                            <select id="visita-membro" required class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none"></select>
+                        </label>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="block">
+                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Data</span>
+                                <input type="date" id="visita-data" required class="w-full p-3 border rounded-md bg-slate-50 outline-none">
+                            </label>
+                            <label class="block">
+                                <span class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Tipo de Encontro</span>
+                                <select id="visita-tipo" class="w-full p-3 border rounded-md bg-slate-50 font-bold outline-none">
+                                    <option>Visita Residencial</option>
+                                    <option>Aconselhamento</option>
+                                    <option>Discipulado</option>
+                                    <option>Hospitalar</option>
+                                    <option>Gabinete</option>
+                                    <option>Reunião de Oração</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <textarea id="visita-obs" rows="4" class="w-full p-3 border rounded-md text-sm outline-none" placeholder="Observações e detalhes do encontro..."></textarea>
+                        
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="text-[10px] font-black uppercase text-ipb-ouro mb-2 block">Motivos de Intercessão</span>
+                            <textarea id="visita-oracao" rows="2" class="w-full p-3 border rounded-md text-sm italic outline-none" placeholder="Pelo que oramos neste encontro?"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-save-visita" class="w-full bg-ipb-verde text-white py-4 rounded font-black uppercase text-xs shadow-lg hover:brightness-110 transition-all">Sincronizar com a Nuvem</button>
                 </form>
             </div>
         </section>
 
-        <!-- HISTÓRICO -->
+        <!-- Histórico com Filtros -->
         <section id="historico" class="tab-content">
-            <h2 class="text-2xl font-black text-ipb-verde uppercase mb-8">Memória de Visitação</h2>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <h2 class="text-2xl font-black text-ipb-verde uppercase tracking-tighter">Memória de Visitação</h2>
+                
+                <div class="flex items-center space-x-2 bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+                    <select id="filter-month" onchange="syncAndApplyFilters('hist')" class="text-[10px] font-black uppercase p-2 outline-none bg-transparent border-r border-slate-100">
+                        <option value="all">Todos os Meses</option>
+                        <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                        <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                        <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                        <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                    </select>
+                    <select id="filter-year" onchange="syncAndApplyFilters('hist')" class="text-[10px] font-black uppercase p-2 outline-none bg-transparent">
+                        <option value="all">Todos os Anos</option>
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
             <div id="timeline-visitas" class="space-y-6"></div>
         </section>
     </main>
 
-    <!-- MODAIS -->
+    <!-- Modais -->
     <div id="modal-membro" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white rounded-lg max-w-md w-full p-8 border-t-8 border-ipb-cinza shadow-2xl">
-            <h2 class="text-xl font-black text-ipb-verde uppercase mb-6 text-center">Cadastro de Ovelha</h2>
+            <h2 class="text-xl font-black text-ipb-verde uppercase mb-6 text-center italic">Novo Membro no Rol</h2>
             <form id="form-membro" class="space-y-4">
-                <input type="text" id="membro-nome" placeholder="Nome Completo" required class="w-full p-3 border rounded bg-slate-50">
-                <input type="tel" id="membro-tel" placeholder="WhatsApp" class="w-full p-3 border rounded bg-slate-50">
-                <input type="text" id="membro-end" placeholder="Endereço" class="w-full p-3 border rounded bg-slate-50">
-                <button type="submit" class="w-full bg-ipb-verde text-white py-3 rounded font-black uppercase text-xs">Salvar Membro</button>
+                <input type="text" id="membro-nome" placeholder="Nome Completo" required class="w-full p-3 border rounded bg-slate-50 font-medium">
+                <input type="tel" id="membro-tel" placeholder="Contacto / WhatsApp" class="w-full p-3 border rounded bg-slate-50">
+                <input type="text" id="membro-end" placeholder="Morada / Residência" class="w-full p-3 border rounded bg-slate-50">
+                <button type="submit" id="btn-save-membro" class="w-full bg-ipb-verde text-white py-3 rounded font-black uppercase text-xs">Confirmar Cadastro</button>
                 <button type="button" onclick="toggleModal('modal-membro')" class="w-full text-slate-400 text-[10px] font-black uppercase mt-2">Cancelar</button>
             </form>
         </div>
@@ -155,13 +214,12 @@
 
     <div id="msg-box" class="fixed bottom-10 right-10 hidden bg-ipb-cinza border-l-8 border-ipb-ouro text-white px-8 py-4 rounded shadow-2xl z-50 font-black uppercase text-[10px]"></div>
 
-    <!-- FIREBASE SDK -->
+    <!-- SDK Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIGURAÇÕES DO REV. PAULO
         const firebaseConfig = {
             apiKey: "AIzaSyAkwAqjPI2sBHglpURT3eL3mn3GumrzFH0",
             authDomain: "visitaspastorais.firebaseapp.com",
@@ -170,6 +228,8 @@
             messagingSenderId: "405839357174",
             appId: "1:405839357174:web:f34c27443e1ce3b13eb8d7"
         };
+
+        const APP_VERSION = "pastoral-v2";
 
         window.showTab = (id) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -180,6 +240,31 @@
             document.getElementById(id).classList.toggle('hidden');
         };
 
+        // Cache global para filtros
+        let globalMembros = [];
+        let globalVisitas = [];
+
+        // Sincroniza os seletores entre Painel e Histórico e aplica filtros
+        window.syncAndApplyFilters = (source) => {
+            const mHist = document.getElementById('filter-month');
+            const yHist = document.getElementById('filter-year');
+            const mDash = document.getElementById('dash-filter-month');
+            const yDash = document.getElementById('dash-filter-year');
+
+            if (source === 'hist') {
+                mDash.value = mHist.value;
+                yDash.value = yHist.value;
+            } else {
+                mHist.value = mDash.value;
+                yHist.value = yDash.value;
+            }
+            applyFilters();
+        };
+
+        window.applyFilters = () => {
+            updateUI(globalMembros, globalVisitas);
+        };
+
         initApp();
 
         async function initApp() {
@@ -187,55 +272,49 @@
                 const app = initializeApp(firebaseConfig);
                 const auth = getAuth(app);
                 const db = getFirestore(app);
-                const appId = "pastoral-app-001";
+                const appId = APP_VERSION;
 
                 let user = null;
-                let membros = [];
-                let visitas = [];
 
                 window.deleteMembro = async (id) => {
-                    if(confirm("Remover membro?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'membros', id));
+                    if(confirm("Deseja remover este membro do rol digital?")) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'membros', id));
+                        showMessage("Membro removido.");
+                    }
                 };
 
                 window.deleteVisita = async (id) => {
-                    if(confirm("Excluir visita?")) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'visitas', id));
+                    if(confirm("Excluir este registo permanentemente?")) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'visitas', id));
+                        showMessage("Registo excluído.");
+                    }
                 };
 
-                // Escutador de Autenticação
                 onAuthStateChanged(auth, (u) => {
                     user = u;
                     if (user) {
-                        document.getElementById('auth-status').innerText = "CONECTADO CLOUD";
-                        document.getElementById('auth-status').classList.replace('text-ipb-ouro', 'text-white');
-                        document.getElementById('config-alert').classList.add('hidden');
+                        document.getElementById('auth-status').innerText = "ONLINE - NUVEM IPB";
                         setupListeners(db, appId, user);
                     } else {
-                        signInAnonymously(auth).catch(err => {
-                            console.error("Auth Error Code:", err.code);
-                            document.getElementById('auth-status').innerText = "DESCONECTADO";
-                            document.getElementById('config-alert').classList.remove('hidden');
-                        });
+                        signInAnonymously(auth).catch(err => console.error("Erro Auth:", err));
                     }
                 });
 
                 function setupListeners(db, appId, user) {
                     onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), (snap) => {
-                        membros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        updateUI(membros, visitas);
-                    }, err => {
-                        console.error("Firestore Membros Error:", err);
-                        alert("Certifique-se de que criou o banco de dados Firestore no Console Firebase.");
+                        globalMembros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                        updateUI(globalMembros, globalVisitas);
                     });
 
                     onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), (snap) => {
-                        visitas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        updateUI(membros, visitas);
-                    }, err => console.error("Firestore Visitas Error:", err));
+                        globalVisitas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                        updateUI(globalMembros, globalVisitas);
+                    });
                 }
 
                 document.getElementById('form-membro').onsubmit = async (e) => {
                     e.preventDefault();
-                    if (!user) return alert("Aguardando conexão com o servidor...");
+                    if (!user) return;
                     try {
                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'membros'), {
                             nome: document.getElementById('membro-nome').value,
@@ -244,34 +323,38 @@
                             createdAt: new Date().toISOString()
                         });
                         e.target.reset(); toggleModal('modal-membro');
-                        showMessage("Membro salvo com sucesso!");
-                    } catch (e) { 
-                        console.error(e);
-                        alert("Erro ao salvar! Verifique se as 'Regras' do Firestore permitem gravação."); 
-                    }
+                        showMessage("Membro cadastrado com sucesso!");
+                    } catch (err) { alert("Erro ao salvar."); }
                 };
 
                 document.getElementById('form-visita').onsubmit = async (e) => {
                     e.preventDefault();
-                    if (!user) return alert("Aguardando conexão...");
+                    if (!user) return;
+                    const btn = document.getElementById('btn-save-visita');
+                    btn.disabled = true;
+
                     try {
+                        const natureza = document.querySelector('input[name="natureza"]:checked').value;
                         await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'visitas'), {
                             membroId: document.getElementById('visita-membro').value,
+                            natureza: natureza,
                             data: document.getElementById('visita-data').value,
                             tipo: document.getElementById('visita-tipo').value,
                             obs: document.getElementById('visita-obs').value,
                             oracao: document.getElementById('visita-oracao').value,
                             timestamp: new Date().toISOString()
                         });
-                        e.target.reset(); showTab('historico');
-                        showMessage("Visita registrada!");
-                    } catch (e) { alert("Erro ao salvar visita."); }
+                        e.target.reset(); showTab('dashboard'); // Volta ao dashboard filtrado
+                        showMessage("Atendimento registado!");
+                    } catch (err) { alert("Erro ao registar."); }
+                    finally { btn.disabled = false; }
                 };
 
-            } catch (err) {
-                console.error("Firebase Init Error:", err);
-                document.getElementById('auth-status').innerText = "ERRO DE SETUP";
-            }
+                // Link para o seletor do dashboard
+                document.getElementById('dash-filter-month').onchange = () => window.syncAndApplyFilters('dash');
+                document.getElementById('dash-filter-year').onchange = () => window.syncAndApplyFilters('dash');
+
+            } catch (err) { console.error(err); }
         }
 
         function showMessage(m) {
@@ -281,50 +364,89 @@
         }
 
         function updateUI(membros, visitas) {
+            // Sincroniza estatísticas com base no filtro global (que agora afeta o Dashboard)
+            const monthFilter = document.getElementById('dash-filter-month').value;
+            const yearFilter = document.getElementById('dash-filter-year').value;
+
+            const filteredVisitas = visitas.filter(v => {
+                const vDate = new Date(v.data + 'T00:00:00');
+                const mMatch = monthFilter === 'all' || vDate.getMonth().toString() === monthFilter;
+                const yMatch = yearFilter === 'all' || vDate.getFullYear().toString() === yearFilter;
+                return mMatch && yMatch;
+            }).sort((a,b) => new Date(b.data) - new Date(a.data));
+
             document.getElementById('stat-membros').innerText = membros.length;
-            document.getElementById('stat-visitas-total').innerText = visitas.length;
-            document.getElementById('stat-oracoes').innerText = visitas.filter(v => v.oracao).length;
+            document.getElementById('stat-visitas-total').innerText = filteredVisitas.length;
+            document.getElementById('stat-oracoes').innerText = filteredVisitas.filter(v => v.oracao).length;
 
+            // Rótulo do Período no Dashboard
+            const dashLabel = document.getElementById('dash-range-label');
+            const mText = monthFilter === 'all' ? '' : document.getElementById('dash-filter-month').options[document.getElementById('dash-filter-month').selectedIndex].text;
+            const yText = yearFilter === 'all' ? '' : yearFilter;
+            dashLabel.innerText = (mText || yText) ? `${mText} ${yText}`.trim() : "Total Geral";
+
+            // Update Select Form
             const sel = document.getElementById('visita-membro');
-            sel.innerHTML = '<option value="">Selecione o Membro...</option>' + 
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="">Escolher Membro...</option>' + 
                 membros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+            sel.value = currentVal;
 
+            // List Membros
             const lm = document.getElementById('lista-membros');
             lm.innerHTML = membros.length ? membros.sort((a,b) => a.nome.localeCompare(b.nome)).map(m => `
-                <li class="p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
+                <li class="p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-all">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-ipb-verde text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm">${m.nome.charAt(0)}</div>
-                        <div><p class="font-bold text-sm uppercase text-ipb-verde tracking-tight">${m.nome}</p></div>
-                    </div>
-                    <button onclick="deleteMembro('${m.id}')" class="text-slate-300 hover:text-red-500 transition-colors px-2 text-xl">&times;</button>
-                </li>
-            `).join('') : '<p class="p-8 text-center text-xs text-slate-400 font-bold uppercase tracking-widest">Nenhum membro cadastrado</p>';
-
-            const tl = document.getElementById('timeline-visitas');
-            tl.innerHTML = visitas.length ? visitas.sort((a,b) => new Date(b.data) - new Date(a.data)).map(v => {
-                const m = membros.find(x => x.id === v.membroId) || {nome: 'Membro Removido'};
-                return `
-                    <div class="bg-white p-6 rounded-lg border-l-4 border-ipb-verde shadow-sm relative group hover:shadow-md transition-shadow">
-                        <div class="flex justify-between mb-2">
-                            <span class="font-black text-ipb-verde text-xs uppercase tracking-tighter">${m.nome}</span>
-                            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">${new Date(v.data).toLocaleDateString('pt-BR')}</span>
+                        <div class="w-8 h-8 bg-ipb-verde text-white rounded-full flex items-center justify-center font-bold text-xs">${m.nome.charAt(0)}</div>
+                        <div>
+                            <p class="font-bold text-sm uppercase text-ipb-verde tracking-tighter">${m.nome}</p>
+                            <p class="text-[9px] text-slate-400 font-bold">${m.tel || 'Sem contacto'}</p>
                         </div>
-                        <p class="text-sm text-slate-600 mb-2 italic">"${v.obs || 'Sem observações'}"</p>
-                        ${v.oracao ? `<div class="text-[10px] p-2 bg-ipb-ouro/5 text-ipb-ouro border-l border-ipb-ouro mt-2"><strong>MOTIVO DE ORAÇÃO:</strong> ${v.oracao}</div>` : ''}
-                        <button onclick="deleteVisita('${v.id}')" class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[9px] text-red-300 uppercase font-bold hover:text-red-600">Excluir</button>
+                    </div>
+                    <button onclick="deleteMembro('${m.id}')" class="text-slate-300 hover:text-red-500 text-xl px-2">&times;</button>
+                </li>
+            `).join('') : '<p class="p-8 text-center text-xs text-slate-300 font-bold uppercase tracking-widest">Sem membros no rol</p>';
+
+            // Timeline Histórico
+            const tl = document.getElementById('timeline-visitas');
+            tl.innerHTML = filteredVisitas.length ? filteredVisitas.map(v => {
+                const m = membros.find(x => x.id === v.membroId) || {nome: 'Membro Removido'};
+                const isIndividual = v.natureza === 'Individual';
+                return `
+                    <div class="bg-white p-6 rounded-lg border-l-4 ${isIndividual ? 'border-ipb-ouro' : 'border-ipb-verde'} shadow-sm relative group">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="font-black ${isIndividual ? 'text-ipb-ouro' : 'text-ipb-verde'} text-xs uppercase tracking-tight">${m.nome}</span>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${isIndividual ? 'bg-ipb-ouro text-white' : 'bg-ipb-verde text-white'}">${v.natureza}</span>
+                                    <span class="text-[8px] font-black uppercase bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${v.tipo}</span>
+                                </div>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-400 border border-slate-100 px-2 py-1 rounded">${new Date(v.data + 'T00:00:00').toLocaleDateString('pt-PT')}</span>
+                        </div>
+                        <p class="text-sm text-slate-600 my-3 leading-relaxed">"${v.obs || 'Registo sem descrição detalhada'}"</p>
+                        ${v.oracao ? `<div class="text-[10px] p-3 bg-ipb-ouro/5 text-ipb-ouro border-l-2 border-ipb-ouro mt-2 italic font-medium"><strong>Intercessão:</strong> ${v.oracao}</div>` : ''}
+                        <button onclick="deleteVisita('${v.id}')" class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[8px] text-red-300 uppercase font-bold hover:text-red-600">Eliminar</button>
                     </div>
                 `;
-            }).join('') : '<p class="text-center py-12 text-slate-300 italic text-xs uppercase tracking-widest font-black">Nenhum registro de visita encontrado</p>';
+            }).join('') : `<p class="text-center py-20 text-slate-300 italic text-xs uppercase font-black">Nenhum registo no período selecionado</p>`;
 
+            // Lista no Painel Principal (respeitando o filtro)
             const al = document.getElementById('activity-list');
-            const latest = [...visitas].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 3);
-            al.innerHTML = latest.length ? latest.map(v => {
+            al.innerHTML = filteredVisitas.length ? filteredVisitas.map(v => {
                 const m = membros.find(x => x.id === v.membroId) || {nome: '?'};
-                return `<div class="text-[10px] flex justify-between border-b border-slate-50 pb-2">
-                    <span class="font-bold uppercase text-ipb-verde">${m.nome}</span>
-                    <span class="text-slate-400 font-bold">${new Date(v.data).toLocaleDateString()}</span>
+                return `
+                <div class="flex justify-between items-center border-b border-slate-50 pb-3 last:border-0">
+                    <div class="flex flex-col">
+                        <span class="font-bold uppercase text-ipb-verde text-[10px] tracking-tight">${m.nome}</span>
+                        <span class="text-[8px] text-slate-400 font-black uppercase tracking-widest">${v.tipo}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 font-bold text-[9px] block">${new Date(v.data + 'T00:00:00').toLocaleDateString()}</span>
+                        <span class="text-[8px] font-black ${v.natureza === 'Individual' ? 'text-ipb-ouro' : 'text-ipb-verde'} uppercase">${v.natureza}</span>
+                    </div>
                 </div>`;
-            }).join('') : '<p class="text-[10px] text-slate-300 italic text-center">Nenhum dado para exibir.</p>';
+            }).join('') : '<p class="text-[10px] text-slate-300 italic text-center py-2">Sem atividades no período selecionado.</p>';
         }
     </script>
 </body>
